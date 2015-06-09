@@ -1,0 +1,40 @@
+<openerp>
+    <data>
+
+        <record id="view_mass_update_lots_wizard_form" model="ir.ui.view">
+            <field name="name">Mass Update Lots Form</field>
+            <field name="model">stock.update.lots.from.lots.wizard</field>
+            <field name="arch" type="xml">
+                <form string="Serial Number">
+                    <group string="Mass Update">
+                        <field name="vendor" />
+			<field name="purchase" />
+			<field name="state" />
+			<group string="Vendor Lots" colspan="4">
+			    <field name="lots" widget="one2many_list" nolabel="1" colspan="4">
+			        <tree string="Vendor Lots">
+				    <field name="lot" />
+				    <field name="state" />
+			        </tree>
+			    </field>
+			</group>
+                        <group>
+                            <button name="mass_update_lots_from_lots" string="Assign Lots" type="object" />
+                        </group>
+                    </group>
+                </form>
+            </field>
+        </record>
+
+
+         <act_window name="Update Lots"
+            res_model="stock.update.lots.from.lots.wizard"
+            src_model="stock.vendor.lot"
+            view_mode="form"
+            target="new"
+            key2="client_action_multi"
+            multi="True"
+            id="action_update_lots_from_lots_form"/>
+
+    </data>
+</openerp>

@@ -1,5 +1,18 @@
 <openerp>
     <data>
+        <record id="view_vendor_lot_search" model="ir.ui.view">
+            <field name="name">Stock Vendor Lot Search</field>
+            <field name="model">stock.vendor.lot</field>
+            <field name="arch" type="xml">
+                <search string="Serial Number">
+                    <field name="receipt" />
+                    <field name="license_plate" />
+                    <field name="purchase" />
+                    <field name="vendor" />
+                    <field name="state" />
+                </search>
+            </field>
+        </record>
 
         <record id="view_vendor_lot_tree" model="ir.ui.view">
             <field name="name">Stock Vendor Lot Tree</field>
@@ -7,6 +20,7 @@
             <field name="arch" type="xml">
                 <tree string="Serial Number">
 		    <field name="license_plate" />
+		    <field name="receipt" />
 		    <field name="purchase" />
 		    <field name="vendor" />
 		    <field name="state" />
@@ -32,6 +46,6 @@
         </record>
         <menuitem action="action_vendor_lot_form" id="menu_action_vendor_lot_form"
             parent="stock.menu_traceability" groups="stock.group_production_lot"
-            sequence="1"/>
+            sequence="2"/>
     </data>
 </openerp>

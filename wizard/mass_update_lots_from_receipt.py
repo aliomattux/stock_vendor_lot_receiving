@@ -1,35 +1,41 @@
 from openerp.osv import osv, fields
 from openerp.tools.translate import _
 
-class StockVendorLotAssignVendorWizard(osv.osv):
-    _name = 'stock.vendor.lot.assign.vendor.wizard'
+
+class StockUpdateLotsFromReceiptWizard(osv.osv):
+    _name = 'stock.update.lots.from.receipt.wizard'
     _columns = {
 	'name': fields.char('Name'),
+	'receipt': fields.many2one('stock.vendor.receipt', 'Receipt'),
 	'vendor':fields.many2one('res.partner', 'Vendor'),
         'state': fields.selection([('draft', 'Draft'),
-                        ('checkin', 'Pending Check-in'),
+                        ('checkin', 'Ready to Count'),
                         ('verification', 'Pending Verification'),
                         ('exception', 'Exception'),
                         ('putaway', 'Pending Putaway'),
                         ('done', 'Done')
         ], 'State'),
 	'purchase': fields.many2one('purchase.order', 'Purchase Order'),
-	'lots': fields.one2many('stock.vendor.lot.assign.vendor.wizard.lines', 'parent', string='Vendor Lots'),
+	'lots': fields.one2many('stock.update.lots.from.receipt.wizard.lines', 'parent', string='Vendor Lots'),
     }
 
     def default_get(self, cr, uid, fields, context=None):
         if context is None: context = {}
-	lots = context.get('active_ids')
+	receipt_id = context.get('active_id')
+	print 'RID', receipt_id
+	receipt = self.pool.get('stock.vendor.receipt').browse(cr, uid, receipt_id)
+	print 'RC', receipt
 	items = []
-	for item in lots:
-	    items.append({'lot': item})
+	for item in receipt.license_plates:
+	    items.append({'lot': item.id})
 
 	res = {}
 	res.update(lots=items)
+	res.update({'receipt': context.get('active_id')})
         return res
 
 
-    def assign_lots_vendor(self, cr, uid, ids, context=None):
+    def mass_update_lots_from_receipt(self, cr, uid, ids, context=None):
 	wizard = self.browse(cr, uid, ids[0])
 	lot_obj = self.pool.get('stock.vendor.lot')
 	lot_ids = []
@@ -52,10 +58,10 @@ class StockVendorLotAssignVendorWizard(osv.osv):
 	return True
 
 	    
-class StockVendorLotAssignVendorLinesWizard(osv.osv):
-    _name = 'stock.vendor.lot.assign.vendor.wizard.lines'
+class StockUpdateLotsFromReceiptLinesWizard(osv.osv):
+    _name = 'stock.update.lots.from.receipt.wizard.lines'
     _columns = {
-	'parent': fields.many2one('stock.vendor.lot.assign.vendor.wizard', 'Parent'),
+	'parent': fields.many2one('stock.update.lots.from.receipt.wizard', 'Parent'),
 	'lot': fields.many2one('stock.vendor.lot', string="License Plate"),
 	'state': fields.related('lot', 'state', type="char", string='State'),
     }

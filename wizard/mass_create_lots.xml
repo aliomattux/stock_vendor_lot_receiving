@@ -1,0 +1,33 @@
+<openerp>
+    <data>
+
+        <record id="view_mass_create_vendor_lot_wizard_form" model="ir.ui.view">
+            <field name="name">Mass Create Lot Form</field>
+            <field name="model">stock.vendor.lot.create.mass.wizard</field>
+            <field name="arch" type="xml">
+                <form string="Serial Number">
+                    <group string="Mass Create">
+			<group>
+			    <field name="number_lots" />
+			    <field name="vendor" />
+			    <field name="purchase" />
+			</group>
+                        <group>
+                            <button name="mass_create_vendor_lots" string="Create Lots" type="object" />
+                        </group>
+                    </group>
+                </form>
+            </field>
+        </record>
+
+
+         <act_window name="Mass Create Lots"
+            res_model="stock.vendor.lot.create.mass.wizard"
+            src_model="stock.vendor.receipt"
+            view_mode="form"
+            target="new"
+            key2="client_action_multi"
+            id="action_mass_create_vendor_lot_form"/>
+
+    </data>
+</openerp>

@@ -1,2 +1,4 @@
 import vendor_wizard_lot
-import lot_assign_vendor
+import mass_update_lots_from_lots
+import mass_update_lots_from_receipt
+import mass_create_lots

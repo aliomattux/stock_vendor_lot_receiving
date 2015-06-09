@@ -1,5 +1,7 @@
 <openerp>
     <data>
+        <menuitem id="menu_automation" name="Automation" parent="stock.menu_stock_root"
+            sequence="2"/>
 
         <record id="view_vendor_lot_wizard_form" model="ir.ui.view">
             <field name="name">Create Lots Form</field>
@@ -7,8 +9,17 @@
             <field name="arch" type="xml">
                 <form string="Serial Number">
 		    <group>
-		        <field name="license_plate" />
-			<field name="vendor" />
+			<group>
+			    <field name="receipt" required="1"/>
+			</group>
+			<newline/>
+			<group>
+		            <field name="license_plate" />
+			    <field name="vendor" />
+			    <field name="vendor_lot" invisible="1" />
+			    <field name="purchase" />
+			</group>
+			<newline/>
 			<group>
 			    <button name="print_license_plate" string="Print License Plate" type="object" />
 			</group>
@@ -29,8 +40,10 @@
 	    <field name="view_mode">form</field>
 	    <field name="target">new</field>
         </record>
+
         <menuitem action="action_vendor_lot_wizard_form" id="menu_action_vendor_lot_wizard_form"
-            parent="stock.menu_traceability" groups="stock.group_production_lot"
+            parent="menu_automation" groups="stock.group_production_lot"
             sequence="4"/>
+
     </data>
 </openerp>
