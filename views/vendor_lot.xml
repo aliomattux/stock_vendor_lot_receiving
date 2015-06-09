@@ -1,0 +1,37 @@
+<openerp>
+    <data>
+
+        <record id="view_vendor_lot_tree" model="ir.ui.view">
+            <field name="name">Stock Vendor Lot Tree</field>
+            <field name="model">stock.vendor.lot</field>
+            <field name="arch" type="xml">
+                <tree string="Serial Number">
+		    <field name="license_plate" />
+		    <field name="purchase" />
+		    <field name="vendor" />
+		    <field name="state" />
+                </tree>
+            </field>
+        </record>
+
+        <record id="action_vendor_lot_form" model="ir.actions.act_window">
+            <field name="name">Vendor Lots</field>
+            <field name="type">ir.actions.act_window</field>
+            <field name="res_model">stock.vendor.lot</field>
+            <field name="view_type">form</field>
+            <field name="view_id" ref="view_vendor_lot_tree"/>
+<!--            <field name="search_view_id" ref="search_product_lot_filter"/> -->
+            <field name="context">{}</field>
+            <field name="help" type="html">
+              <p class="oe_view_nocontent_create">
+		Vendor Lots
+              </p><p>
+                This is the list of all the Vendor lots you recorded.
+              </p>
+            </field>
+        </record>
+        <menuitem action="action_vendor_lot_form" id="menu_action_vendor_lot_form"
+            parent="stock.menu_traceability" groups="stock.group_production_lot"
+            sequence="1"/>
+    </data>
+</openerp>

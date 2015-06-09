@@ -1,0 +1,2 @@
+import vendor_wizard_lot
+import lot_assign_vendor
