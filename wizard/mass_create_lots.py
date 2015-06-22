@@ -6,19 +6,26 @@ class StockVendorLotAssignVendorWizard(osv.osv):
     _columns = {
 	'name': fields.char('Name'),
 	'vendor':fields.many2one('res.partner', 'Vendor'),
+	'current_lots': fields.integer('Current License Plates'),	
 	'number_lots': fields.integer('Number of Lots'),
 	'purchase': fields.many2one('purchase.order', 'Purchase Order'),
     }
 
     def default_get(self, cr, uid, fields, context=None):
         if context is None: context = {}
-	lots = context.get('active_ids')
-	items = []
-	for item in lots:
-	    items.append({'lot': item})
+	receipt_obj = self.pool.get('stock.vendor.receipt')
+	receipts = context.get('active_ids')
+	if not receipts:
+	    return {}
 
-	res = {}
-	res.update(lots=items)
+	receipt = receipt_obj.browse(cr, uid, receipts[0])
+
+	res = {
+	    'purchase': receipt.purchase.id,
+	    'current_lots': receipt.number_lots,
+	    'vendor': receipt.vendor.id,
+	}
+
         return res
 
 

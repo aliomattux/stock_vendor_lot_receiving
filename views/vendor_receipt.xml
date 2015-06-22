@@ -9,6 +9,7 @@
 		    <field name="name" />
 		    <field name="purchase" />
 		    <field name="vendor" />
+		    <field name="number_lots" />
 		    <field name="start_time" />
 		    <field name="end_time" />
                 </tree>
@@ -20,14 +21,34 @@
             <field name="model">stock.vendor.receipt</field>
             <field name="arch" type="xml">
                 <form string="License Plates">
+                   <header>
+                        <button name="print_license_plates" type="object" string="Print License Plates" />
+                        <button name="reconcile_purchase_order" type="object" string="Reconcile PO" />
+                    </header>
+		    <sheet>
+                        <h1>
+			    <label for="name" />
+                            <field name="name" class="oe_inline" readonly="1"/>
+                        </h1>
 		    <group>
-			<field name="name" readonly="1" />
-                        <field name="purchase" />
-                        <field name="vendor" />
+		        <group string="Details">
+			    <field name="start_time" />
+                            <field name="purchase" />
+                            <field name="vendor" />
+		        </group>
+			<group string="Stats">
+			    <field name="number_lots" />
+			    <field name="count_incoming_new_lots" />
+			    <field name="count_incoming_ready_lots" />
+			    <field name="count_incoming_approval_lots" />
+			    <field name="count_incoming_exception_lots" />
+			    <field name="count_incoming_putaway_lots" />
+			</group>
 		    </group>
 		    <group string="License Plates">
 			<field name="license_plates" widget="one2many_list" nolabel="1" colspan="4" />
 		    </group>
+		    </sheet>
                 </form>
             </field>
         </record>

@@ -8,6 +8,7 @@
                 <form string="Serial Number">
                     <group string="Mass Create">
 			<group>
+			    <field name="current_lots" readonly="1" />
 			    <field name="number_lots" />
 			    <field name="vendor" />
 			    <field name="purchase" />

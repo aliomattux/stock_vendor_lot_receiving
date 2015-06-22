@@ -1,0 +1,290 @@
+<openerp>
+    <data>
+        <!-- Action for Lot Management -->
+        <record id="action_incoming_lot_new" model="ir.actions.act_window">
+            <field name="name">New</field>
+            <field name="res_model">stock.vendor.lot</field>
+            <field name="type">ir.actions.act_window</field>
+            <field name="view_type">form</field>
+            <field name="view_mode">tree,form</field>
+	    <field name="domain">[('state', '=', 'draft')]</field>
+            <field name="search_view_id" ref="view_vendor_lot_search"/>
+        </record>
+        <record id="action_incoming_lot_ready_count" model="ir.actions.act_window">
+            <field name="name">Ready to Count</field>
+            <field name="res_model">stock.vendor.lot</field>
+            <field name="type">ir.actions.act_window</field>
+            <field name="view_type">form</field>
+            <field name="view_mode">tree,form</field>
+            <field name="domain">[('state', '=', 'checkin')]</field>
+            <field name="search_view_id" ref="view_vendor_lot_search"/>
+        </record>
+        <record id="action_incoming_lot_pending_approval" model="ir.actions.act_window">
+            <field name="name">Pending Approval</field>
+            <field name="res_model">stock.vendor.lot</field>
+            <field name="type">ir.actions.act_window</field>
+            <field name="view_type">form</field>
+            <field name="view_mode">tree,form</field>
+            <field name="domain">[('state', '=', 'verification')]</field>
+            <field name="search_view_id" ref="view_vendor_lot_search"/>
+        </record>
+        <record id="action_incoming_lot_exception" model="ir.actions.act_window">
+            <field name="name">Exceptions</field>
+            <field name="res_model">stock.vendor.lot</field>
+            <field name="type">ir.actions.act_window</field>
+            <field name="view_type">form</field>
+            <field name="view_mode">tree,form</field>
+            <field name="domain">[('state', '=', 'exception')]</field>
+            <field name="search_view_id" ref="view_vendor_lot_search"/>
+        </record>
+        <record id="action_incoming_lot_ready_putaway" model="ir.actions.act_window">
+            <field name="name">Ready to Putaway</field>
+            <field name="res_model">stock.vendor.lot</field>
+            <field name="type">ir.actions.act_window</field>
+            <field name="view_type">form</field>
+            <field name="view_mode">tree,form</field>
+            <field name="domain">[('state', '=', 'putaway')]</field>
+            <field name="search_view_id" ref="view_vendor_lot_search"/>
+        </record>
+        <record id="action_incoming_lot_management" model="ir.actions.act_window">
+            <field name="name">All Lots</field>
+            <field name="res_model">stock.vendor.lot</field>
+            <field name="type">ir.actions.act_window</field>
+            <field name="view_type">form</field>
+            <field name="view_mode">tree,form</field>
+            <field name="search_view_id" ref="view_vendor_lot_search"/>
+        </record>
+
+	<!-- Action for unprinted Outgoing Orders -->
+        <record id="action_outgoing_tree_ready_print" model="ir.actions.act_window">
+            <field name="name">Ready To Print</field>
+            <field name="res_model">stock.picking</field>
+            <field name="type">ir.actions.act_window</field>
+            <field name="view_type">form</field>
+            <field name="view_mode">tree,form,calendar</field>
+            <field name="domain">[('printed', '=', False)]</field>
+            <field name="context">{
+                    'search_default_picking_type_id': [active_id],
+                    'default_picking_type_id': active_id,
+                    'contact_display': 'partner_address',
+                    'search_default_available': 1,
+            }
+            </field>
+            <field name="search_view_id" ref="stock.view_picking_internal_search"/>
+        </record>
+
+        <record model="ir.actions.act_window.view" id="action_o_outgoing_tree_ready_print">
+            <field name="view_mode">tree</field>
+            <field name="view_id" ref="mage2odoo_operations.mage_vpicktree_outgoing"/>
+            <field name="act_window_id" ref="action_outgoing_tree_ready_print"/>
+        </record>
+
+
+        <record id="action_outgoing_tree_ready_ship" model="ir.actions.act_window">
+            <field name="name">Ready to Ship</field>
+            <field name="res_model">stock.picking</field>
+            <field name="type">ir.actions.act_window</field>
+            <field name="view_type">form</field>
+            <field name="view_mode">tree,form,calendar</field>
+            <field name="domain">[('printed', '=', True)]</field>
+            <field name="context">{
+                    'search_default_picking_type_id': [active_id],
+                    'default_picking_type_id': active_id,
+                    'contact_display': 'partner_address',
+                    'search_default_available': 1,
+            }
+            </field>
+            <field name="search_view_id" ref="stock.view_picking_internal_search"/>
+        </record>
+
+        <record model="ir.actions.act_window.view" id="action_o_outgoing_tree_ready_ship">
+            <field name="view_mode">tree</field>
+            <field name="view_id" ref="mage2odoo_operations.mage_vpicktree_outgoing"/>
+            <field name="act_window_id" ref="action_outgoing_tree_ready_ship"/>
+        </record>
+
+	<!-- Override entire kanban view to add our changes -->
+        <record id="stock.stock_picking_type_kanban" model="ir.ui.view">
+            <field name="name">stock.picking.type.kanban</field>
+            <field name="model">stock.picking.type</field>
+            <field name="arch" type="xml">
+                <kanban class="oe_background_grey" create="0">
+                    <field name="complete_name"/>
+                    <field name="color"/>
+		    <field name="code" invisible="1" />
+                    <field name="count_picking_ready"/>
+                    <field name="count_picking_draft"/>
+                    <field name="count_picking_waiting"/>
+                    <field name="count_picking_late"/>
+                    <field name="count_picking_backorders"/>
+                    <templates>
+                        <t t-name="kanban-box">
+                            <div t-attf-class="oe_kanban_color_#{kanban_getcolor(record.color.raw_value)} oe_kanban_card oe_kanban_stock_picking_type" style="height: 300px;">
+                                <div class="oe_dropdown_toggle oe_dropdown_kanban" groups="stock.group_stock_manager">
+                                    <span class="oe_e">í</span>
+                                    <ul class="oe_dropdown_menu">
+                                        <t t-if="widget.view.is_action_enabled('edit')"><li><a type="edit">Edit...</a></li></t>
+                                        <t t-if="widget.view.is_action_enabled('delete')"><li><a type="delete">Delete</a></li></t>
+                                        <t t-if="widget.view.is_action_enabled('edit')"><li><ul class="oe_kanban_colorpicker" data-field="color"/></li></t>
+                                    </ul>
+                                </div>
+                                <div class="oe_kanban_content">
+                                    <h4 class="text-center"><strong><field name="complete_name"/></strong></h4>
+                                    <div class="oe_right">
+                                        <a name="open_barcode_interface" type="object">
+                                            <img src="/stock/static/src/img/scan.png"
+                                                alt="Click to launch the barcode interface"
+                                                class="oe_stock_scan_image" title="Click to launch the barcode interface"/>
+                                        </a>
+                                    </div>
+                                    <div class="oe_items_list oe_kanban_ellipsis">
+					<div t-if="record.code.raw_value == 'outgoing'">
+                                            <a name="%(action_outgoing_tree_ready_print)d" type="action">
+                                                <field name="count_print"/> Ready to Print
+                                            </a>
+					</div>
+                                        <div t-if="record.code.raw_value == 'outgoing'">
+                                            <a name="%(action_outgoing_tree_ready_ship)d" type="action">
+                                                <field name="count_ship_ready"/> Ready to Ship
+                                            </a>
+                                            <a name="%(stock.action_picking_tree_done)d" type="action" class="oe_sparkline_bar_link">
+                                                <field name="last_done_picking" widget="sparkline_bar" options="{'type': 'tristate', 'colorMap': {'0': 'orange', '-1': 'red', '1': 'green'}}">Last 10 Done Operations</field>
+                                            </a>
+                                        </div>
+                                        <div t-if="record.code.raw_value == 'internal'">
+                                            <a name="%(mage2odoo_operations.action_internal_tree_ready)d" type="action">
+                                                <field name="count_picking_ready"/> Ready to Transfer
+                                            </a>
+                                            <a name="%(stock.action_picking_tree_done)d" type="action" class="oe_sparkline_bar_link">
+                                                <field name="last_done_picking" widget="sparkline_bar" options="{'type': 'tristate', 'colorMap': {'0': 'orange', '-1': 'red', '1': 'green'}}">Last 10 Done Operations</field>
+                                            </a>
+                                        </div>
+                                        <div t-if="record.code.raw_value == 'incoming'">
+                                            <a name="%(action_incoming_lot_new)d" type="action" context="{'state': 'draft'}">
+                                                <field name="count_incoming_new_lots"/> New
+                                            </a>
+					</div>
+					<div t-if="record.code.raw_value == 'incoming'">
+                                            <a name="%(action_incoming_lot_ready_count)d" type="action" context="{'state': 'checkin'}">
+                                                <field name="count_incoming_ready_lots"/> Ready to Count
+                                            </a>
+					</div>
+					<div t-if="record.code.raw_value == 'incoming'">
+                                            <a name="%(action_incoming_lot_pending_approval)d" type="action" context="{'state': 'verification'}">
+                                                <field name="count_incoming_approval_lots"/> Pending Approval
+                                            </a>
+					</div>
+					<div t-if="record.code.raw_value == 'incoming'">
+                                            <a name="%(action_incoming_lot_exception)d" type="action" context="{'state': 'exception'}">
+                                                <field name="count_incoming_exception_lots"/> Exceptions
+                                            </a>
+                                        </div>
+					<div t-if="record.code.raw_value == 'incoming'">
+                                            <a name="%(action_incoming_lot_ready_putaway)d" type="action" context="{'state': 'putaway'}">
+                                                <field name="count_incoming_putaway_lots"/> Ready to Putaway
+                                            </a>
+                                        </div>
+
+                                        <div t-if="record.count_picking_waiting.raw_value &gt; 0 and record.code.raw_value == 'internal'">
+                                            <a name="%(mage2odoo_operations.action_internal_tree_waiting)d" type="action">
+                                                <field name="count_picking_waiting"/> Waiting Availability
+                                            </a>
+                                        </div>
+                                        <div t-if="record.count_picking_waiting.raw_value &gt; 0 and record.code.raw_value == 'outgoing'">
+                                            <a name="%(mage2odoo_operations.action_outgoing_tree_waiting)d" type="action">
+                                                <field name="count_picking_waiting"/> Waiting Availability
+                                            </a>
+                                        </div>
+                                        <div t-if="record.code.raw_value == 'internal'">
+                                            <a name="%(mage2odoo_operations.action_internal_tree)d" type="action">All Transfers</a>
+                                        </div>
+                                        <div t-if="record.code.raw_value == 'outgoing'">
+                                            <a name="%(mage2odoo_operations.action_outgoing_tree)d" type="action">All Outgoing</a>
+                                        </div>
+                                    </div>
+				    <div t-if="record.code.raw_value == 'incoming'" class="oe_right" style="margin-top:-50px;">
+                                        <div>
+                                            <a name="%(pick_pack_ship.action_picking_wave_tree)d" type="action">Posted Receipts</a>
+                                        </div>
+                                        <div t-if="record.code.raw_value == 'incoming'">
+                                            <a name="%(action_incoming_lot_management)d" type="action">All Lots</a>
+                                        </div>
+				    </div>
+				    <div class="oe_right" style="margin-top:-30px;">
+                                        <div t-if="record.code.raw_value == 'outgoing'" class="oe_right">
+					    <div>
+                                                <a name="%(pick_pack_ship.action_picking_wave_tree)d" type="action">Pick Waves</a>
+					    </div>
+					    <div>
+                                                <a name="%pick_pack_ship.(action_picking_wave_generator)d" type="action">Generate Pick Wave</a>
+					    </div>
+                                        </div>
+				    </div>
+                                    <div class="oe_picking_type_gauge" style="top:160px;">
+                                        <field name="rate_picking_late" widget="gauge" style="width:150px; height: 110px;" options="{'levelcolors': ['#a9d70b', '#f9c802', '#ff0000'], 'action_jump': '%(stock.action_picking_tree_late)d'}">Late (%%)</field>
+                                        <field name="rate_picking_backorders" widget="gauge" style="width:150px; height: 110px;">Backorders (%%)</field>
+                                        <div class="oe_gauge_labels">
+                                            <div t-if="record.code.raw_value == 'incoming'" class="oe_gauge_label_column">
+                                                <a name="%(mage2odoo_operations.action_incoming_tree_late)d" type="action">
+                                                    <field name="count_picking_late"/> Late
+                                                </a>
+                                            </div>
+                                            <div t-if="record.code.raw_value == 'internal'" class="oe_gauge_label_column">
+                                                <a name="%(mage2odoo_operations.action_internal_tree_late)d" type="action">
+                                                    <field name="count_picking_late"/> Late
+                                                </a>
+                                            </div>
+                                            <div t-if="record.code.raw_value == 'outgoing'" class="oe_gauge_label_column">
+                                                <a name="%(mage2odoo_operations.action_outgoing_tree_late)d" type="action">
+                                                    <field name="count_picking_late"/> Late
+                                                </a>
+                                            </div>
+                                            <div t-if="record.code.raw_value == 'incoming'" class="oe_gauge_label_column">
+                                                <a name="%(mage2odoo_operations.action_incoming_tree_backorder)d" type="action">
+                                                    <field name="count_picking_backorders"/> Backorders
+                                                </a>
+                                            </div>
+                                            <div t-if="record.code.raw_value == 'internal'" class="oe_gauge_label_column">
+                                                <a name="%(mage2odoo_operations.action_internal_tree_backorder)d" type="action">
+                                                    <field name="count_picking_backorders"/> Backorders
+                                                </a>
+                                            </div>
+                                            <div t-if="record.code.raw_value == 'outgoing'" class="oe_gauge_label_column">
+                                                <a name="%(mage2odoo_operations.action_outgoing_tree_backorder)d" type="action">
+                                                    <field name="count_picking_backorders"/> Backorders
+                                                </a>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                </div>
+                            </div>
+                        </t>
+                    </templates>
+                </kanban>
+            </field>
+        </record>
+        <record id="view_stock_picking_wave_form" model="ir.ui.view">
+            <field name="name">Stock Picking Wave Form</field>
+            <field name="model">stock.picking</field>
+            <field name="inherit_id" ref="stock.view_picking_form" />
+            <field name="arch" type="xml">
+                <page string="Additional Info" position="after">
+                    <page string="Picking Waves" >
+			<group>
+			    <field name="pick_ahead" />
+			</group>
+                        <group string="Waves" >
+                            <field name="waves" nolabel="1" >
+                                <tree>
+				    <field name="wave" />
+				    <field name="container" />
+                                </tree>
+                            </field>
+                        </group>
+                    </page>
+                </page>
+            </field>
+        </record>
+    </data>
+</openerp>

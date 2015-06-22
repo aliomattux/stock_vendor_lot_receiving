@@ -1,0 +1,71 @@
+<openerp>
+    <data>
+        <record id="view_vendor_receipt_add_wizard_form" model="ir.ui.view">
+            <field name="name">Create Lots Form</field>
+            <field name="model">stock.vendor.lot.item.wizard</field>
+            <field name="arch" type="xml">
+                <form string="Serial Number">
+		    <header>
+			<button name="save_progress" string="Save Progress" type="object" />
+		    </header>
+		    <group>
+			<group colspan="4" >
+			    <field name="hidden_vendor_lot" invisible="1" />
+			    <group>
+			        <field name="vendor_lot" readonly="1" />
+				<field name="product_qty" />
+			    </group>
+			    <group>
+			        <field name="items_count" readonly="1" />
+			    </group>
+			</group>
+			<group string="Find Existing Product">
+			    <field name="product" on_change="onchange_product_id(product)" />
+			</group>
+			<group string="Create New Product">
+			    <field name="hidden_product_id" invisible="1" />
+			    <field name="product_id" attrs="{'invisible': ['|', ('product_id', '=', False), ('product_id', '=', 0)]}" readonly="1" />
+			    <field name="sku" />
+			    <field name="upc" />
+			    <field name="product_name" />
+			    <field name="length" />
+			    <field name="width" />
+			    <field name="height" />
+			</group>
+			<newline/>
+			<group>
+			    <button name="add_existing_item_and_continue" string="Add Existing Item" type="object" 
+			    attrs="{'invisible': ['|', ('product_id', '=', False), ('product_id', '=', 0)]}" />
+			</group>
+			<group>
+			    <button name="create_new_item_and_continue" string="Create New Item" type="object"
+			    attrs="{'invisible': [('product_id', '&gt;', 0)]}" />
+			    <button name="update_existing_item_and_continue" string="Update and Add Item" type="object" 
+				attrs="{'invisible': ['|', ('product_id', '=', False), ('product_id', '=', 0)]}" />
+			</group>
+
+			<group string="Items in Lot" colspan="4">
+			    <field name="items" widget="one2many_list" nolabel="1">
+				<tree string="" editable="top">
+				    <field name="existing_lot_item" invisible="1" />
+				    <field name="parent" invisible="1" />
+				    <field name="product" />
+				    <field name="product_qty" />
+				</tree>
+			    </field>
+			</group>
+		    </group>
+                </form>
+            </field>
+        </record>
+
+         <act_window name="Add Items"
+            res_model="stock.vendor.lot.item.wizard"
+            src_model="stock.vendor.lot"
+            view_mode="form"
+            target="new"
+            key2="client_action_multi"
+            id="action_add_items_to_lot"/>
+
+    </data>
+</openerp>
