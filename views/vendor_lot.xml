@@ -5,9 +5,9 @@
             <field name="model">stock.vendor.lot</field>
             <field name="arch" type="xml">
                 <search string="Serial Number">
+		    <field name="product_reference" />
                     <field name="receipt" />
                     <field name="license_plate" />
-                    <field name="purchase" />
                     <field name="vendor" />
                     <field name="state" />
                 </search>
@@ -21,7 +21,6 @@
                 <tree string="Serial Number">
 		    <field name="license_plate" />
 		    <field name="receipt" />
-		    <field name="purchase" />
 		    <field name="vendor" />
 		    <field name="state" />
                 </tree>
@@ -45,16 +44,18 @@
 		    <group>
 		    <group>
                         <field name="receipt" />
-                        <field name="purchase" />
+			<field name="purchases" widget="many2many_tags" />
 		    </group>
 		    <group>
                         <field name="vendor" />
+			<field name="location" />
 		    </group>
 		    <group string="Items" colspan="4">
 		        <field name="lot_items" widget="one2many_list" nolabel="1">
 			    <tree editable="top">
 			        <field name="product" />
 			        <field name="product_qty" />
+				<field name="location" />
 			    </tree>
 		        </field>
 		    </group>

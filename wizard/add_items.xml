@@ -13,37 +13,41 @@
 			    <field name="hidden_vendor_lot" invisible="1" />
 			    <group>
 			        <field name="vendor_lot" readonly="1" />
+				<field name="receipt" />
+				<field name="purchases" widget="many2many_tags"/>
 				<field name="product_qty" />
 			    </group>
 			    <group>
 			        <field name="items_count" readonly="1" />
+				<field name="skip_purchase" />
 			    </group>
 			</group>
 			<group string="Find Existing Product">
-			    <field name="product" on_change="onchange_product_id(product)" />
+			    <field name="receipt_product" on_change="onchange_receipt_product(receipt_product)" />
+			    <field name="product" on_change="onchange_product_id(product)" attrs="{'invisible': [('skip_purchase', '=', False)]}"/>
+			    <field name="hidden_product_id" invisible="1"/>
 			</group>
-			<group string="Create New Product">
-			    <field name="hidden_product_id" invisible="1" />
-			    <field name="product_id" attrs="{'invisible': ['|', ('product_id', '=', False), ('product_id', '=', 0)]}" readonly="1" />
-			    <field name="sku" />
-			    <field name="upc" />
-			    <field name="product_name" />
-			    <field name="length" />
-			    <field name="width" />
-			    <field name="height" />
+			<group string="Product Details">
+			    <field name="sku" readonly="1"/>
+			    <field name="upc" readonly="1" />
+			    <field name="product_name" readonly="1" />
+			    <field name="length" readonly="1" />
+			    <field name="width" readonly="1" />
+			    <field name="height" readonly="1" />
 			</group>
+
 			<newline/>
 			<group>
 			    <button name="add_existing_item_and_continue" string="Add Existing Item" type="object" 
-			    attrs="{'invisible': ['|', ('product_id', '=', False), ('product_id', '=', 0)]}" />
+			    attrs="{'invisible': ['|', ('product', '=', False), ('product', '=', 0)]}" />
 			</group>
-			<group>
+<!--			<group>
 			    <button name="create_new_item_and_continue" string="Create New Item" type="object"
 			    attrs="{'invisible': [('product_id', '&gt;', 0)]}" />
 			    <button name="update_existing_item_and_continue" string="Update and Add Item" type="object" 
 				attrs="{'invisible': ['|', ('product_id', '=', False), ('product_id', '=', 0)]}" />
 			</group>
-
+-->
 			<group string="Items in Lot" colspan="4">
 			    <field name="items" widget="one2many_list" nolabel="1">
 				<tree string="" editable="top">

@@ -216,7 +216,7 @@
                                                 <a name="%(pick_pack_ship.action_picking_wave_tree)d" type="action">Pick Waves</a>
 					    </div>
 					    <div>
-                                                <a name="%pick_pack_ship.(action_picking_wave_generator)d" type="action">Generate Pick Wave</a>
+                                                <a name="%(pick_pack_ship.action_picking_wave_generator)d" type="action">Generate Pick Wave</a>
 					    </div>
                                         </div>
 				    </div>
@@ -262,28 +262,6 @@
                         </t>
                     </templates>
                 </kanban>
-            </field>
-        </record>
-        <record id="view_stock_picking_wave_form" model="ir.ui.view">
-            <field name="name">Stock Picking Wave Form</field>
-            <field name="model">stock.picking</field>
-            <field name="inherit_id" ref="stock.view_picking_form" />
-            <field name="arch" type="xml">
-                <page string="Additional Info" position="after">
-                    <page string="Picking Waves" >
-			<group>
-			    <field name="pick_ahead" />
-			</group>
-                        <group string="Waves" >
-                            <field name="waves" nolabel="1" >
-                                <tree>
-				    <field name="wave" />
-				    <field name="container" />
-                                </tree>
-                            </field>
-                        </group>
-                    </page>
-                </page>
             </field>
         </record>
     </data>

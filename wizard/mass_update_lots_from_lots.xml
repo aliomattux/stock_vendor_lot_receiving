@@ -8,7 +8,7 @@
                 <form string="Serial Number">
                     <group string="Mass Update">
                         <field name="vendor" />
-			<field name="purchase" />
+			<field name="purchases" widget="many2many_tags"/>
 			<field name="state" />
 			<group string="Vendor Lots" colspan="4">
 			    <field name="lots" widget="one2many_list" nolabel="1" colspan="4">

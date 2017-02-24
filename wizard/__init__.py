@@ -3,3 +3,4 @@ import mass_update_lots_from_lots
 import mass_update_lots_from_receipt
 import mass_create_lots
 import add_items
+import export_receipt

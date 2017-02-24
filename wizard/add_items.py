@@ -1,12 +1,17 @@
 from openerp.osv import osv, fields
 from openerp.tools.translate import _
 
-class StockVendorLotItemWizard(osv.osv):
+class StockVendorLotItemWizard(osv.osv_memory):
     _name = 'stock.vendor.lot.item.wizard'
     _columns = {
 	'hidden_vendor_lot': fields.many2one('stock.vendor.lot', 'License Plate'),
 	'items_count': fields.integer('Items Added'),
 	'product_id': fields.integer('Product ID'),
+	'receipt_product': fields.many2one('stock.vendor.receipt.line', 'Product', domain="[('receipt', '=', receipt)]"),
+	'skip_purchase': fields.boolean('Bypass Purchase Item'),
+        'purchases': fields.many2many('purchase.order', \
+                'add_items_wizard_purchase_rel', 'lot_id', 'purchase_id', 'Purchase Orders'
+        ),
 	'hidden_product_id': fields.integer('Product ID'),
 	'vendor_lot': fields.many2one('stock.vendor.lot', 'License Plate'),
 	'product': fields.many2one('product.product', 'Product'),
@@ -17,6 +22,7 @@ class StockVendorLotItemWizard(osv.osv):
 	'width': fields.float('Width'),
 	'height': fields.float('Height'),
 	'weight': fields.float('Weight'),
+	'receipt': fields.many2one('stock.vendor.receipt', 'Receipt'),
 	'upc': fields.char('UPC'),
 	'product_name': fields.char('Product Name'),
     }
@@ -35,13 +41,16 @@ class StockVendorLotItemWizard(osv.osv):
 	lot = lot_obj.browse(cr, uid, vendor_lot_id)
 	items = []
 	res = {
+		'receipt': lot.receipt.id,
 		'hidden_vendor_lot': vendor_lot_id,
+		'purchases': [purch.id for purch in lot.purchases],
 		'vendor_lot': vendor_lot_id,
 	}	
 
 	if context.get('default_items'):
 	    items = context.get('default_items')
 	    res['items'] = items
+	    res['purchases'] = context.get('default_purchases')
 	    res['items_count'] = context.get('default_items_count')
 
 	else:
@@ -58,10 +67,19 @@ class StockVendorLotItemWizard(osv.osv):
 	return res
 
 
+    def onchange_receipt_product(self, cr, uid, ids, receipt_line_id):
+	if not receipt_line_id:
+#	    return {'value': {'product': False}}
+	    return {'value': {}}
+	line_obj = self.pool.get('stock.vendor.receipt.line')
+	line = line_obj.browse(cr, uid, receipt_line_id)
+	return {'value': {'product': line.product.id}}
+
+
     def onchange_product_id(self, cr, uid, ids, product_id, context=None):
 	if not product_id:
 	    return {'value': {
-			'product_id': False,
+#			'product_id': False,
 			'hidden_product_id': '',
 			'sku': '',
 			'product_name': '',
@@ -73,7 +91,7 @@ class StockVendorLotItemWizard(osv.osv):
 
 	product = self.pool.get('product.product').browse(cr, uid, product_id)
 	vals = {
-		'product_id': product.id,
+#		'product_id': product.id,
 		'hidden_product_id': product.id,
 		'sku': product.default_code,
 		'product_name': product.name,
@@ -112,7 +130,6 @@ class StockVendorLotItemWizard(osv.osv):
         cr.execute(query)
 
         items = cr.dictfetchall()
-	print 'ITEMS', items
 	if not items:
 	    return True
 
@@ -182,6 +199,7 @@ class StockVendorLotItemWizard(osv.osv):
 
         context.update({
                 'default_items_count': len(wizard.items),
+		'default_purchases':[purch.id for purch in wizard.purchases],
 		'default_items': items,
         })
 
@@ -199,7 +217,7 @@ class StockVendorLotItemWizard(osv.osv):
         }
 
 
-class StockVendorLotItemsWizard(osv.osv):
+class StockVendorLotItemsWizard(osv.osv_memory):
     _name = 'stock.vendor.lot.items.wizard'
     _columns = {
 	'existing_lot_item': fields.many2one('stock.vendor.lot.line', 'Existing Line'),

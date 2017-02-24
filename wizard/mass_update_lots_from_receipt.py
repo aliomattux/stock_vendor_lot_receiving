@@ -2,7 +2,7 @@ from openerp.osv import osv, fields
 from openerp.tools.translate import _
 
 
-class StockUpdateLotsFromReceiptWizard(osv.osv):
+class StockUpdateLotsFromReceiptWizard(osv.osv_memory):
     _name = 'stock.update.lots.from.receipt.wizard'
     _columns = {
 	'name': fields.char('Name'),
@@ -15,16 +15,17 @@ class StockUpdateLotsFromReceiptWizard(osv.osv):
                         ('putaway', 'Pending Putaway'),
                         ('done', 'Done')
         ], 'State'),
-	'purchase': fields.many2one('purchase.order', 'Purchase Order'),
+        'purchases': fields.many2many('purchase.order', \
+                'mass_update_from_receipt_wizard_purchase_rel', 'lot_id', 'purchase_id',
+		string='Purchase Orders', domain="[('partner_id', '=', vendor)]"
+        ),
 	'lots': fields.one2many('stock.update.lots.from.receipt.wizard.lines', 'parent', string='Vendor Lots'),
     }
 
     def default_get(self, cr, uid, fields, context=None):
         if context is None: context = {}
 	receipt_id = context.get('active_id')
-	print 'RID', receipt_id
 	receipt = self.pool.get('stock.vendor.receipt').browse(cr, uid, receipt_id)
-	print 'RC', receipt
 	items = []
 	for item in receipt.license_plates:
 	    items.append({'lot': item.id})
@@ -47,8 +48,9 @@ class StockUpdateLotsFromReceiptWizard(osv.osv):
 	if wizard.vendor:
 	    vals.update({'vendor': wizard.vendor.id})
 
-	if wizard.purchase:
-	    vals.update({'purchase': wizard.purchase.id})
+	if wizard.purchases:
+	    purchase_ids = [purch.id for purch in wizard.purchases]
+	    vals.update({'purchases': [(6, 0, purchase_ids)]})
 
 	if wizard.state:
 	    vals.update({'state': wizard.state})
@@ -58,7 +60,7 @@ class StockUpdateLotsFromReceiptWizard(osv.osv):
 	return True
 
 	    
-class StockUpdateLotsFromReceiptLinesWizard(osv.osv):
+class StockUpdateLotsFromReceiptLinesWizard(osv.osv_memory):
     _name = 'stock.update.lots.from.receipt.wizard.lines'
     _columns = {
 	'parent': fields.many2one('stock.update.lots.from.receipt.wizard', 'Parent'),

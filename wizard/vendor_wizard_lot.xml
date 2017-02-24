@@ -17,7 +17,7 @@
 		            <field name="license_plate" />
 			    <field name="vendor" />
 			    <field name="vendor_lot" invisible="1" />
-			    <field name="purchase" />
+			    <field name="purchases" widget="many2many_tags"/>
 			</group>
 			<newline/>
 			<group>

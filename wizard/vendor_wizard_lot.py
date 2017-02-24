@@ -1,14 +1,17 @@
 from openerp.osv import osv, fields
 from openerp.tools.translate import _
 
-class StockVendorLotWizard(osv.osv):
+class StockVendorLotWizard(osv.osv_memory):
     _name = 'stock.vendor.lot.wizard'
     _rec_name = 'license_plate'
     _columns = {
 	'receipt': fields.many2one('stock.vendor.receipt', 'Receipt'),
         'license_plate': fields.char('License Plate'),
 	'vendor':fields.many2one('res.partner', 'Vendor'),
-	'purchase':fields.many2one('purchase.order', 'Purchase'),
+        'purchases': fields.many2many('purchase.order', \
+                'vendor_create_lots_wizard_purchase_rel', 'wizard_id', 'purchase_id',
+		string='Purchase Orders', domain="[('partner_id', '=', vendor)]"
+        ),
 	'vendor_lot': fields.many2one('stock.vendor.lot', 'License Plate'),
     }
 
@@ -34,7 +37,7 @@ class StockVendorLotWizard(osv.osv):
 		'license_plate': context.get('default_license_plate'),
 		'receipt': context.get('default_receipt'),
 		'vendor': context.get('default_vendor'),
-		'purchase': context.get('default_purchase'),
+		'purchases': context.get('default_purchases'),
 		'vendor_lot': context.get('default_vendor_lot'),
 	    }
 
@@ -44,10 +47,14 @@ class StockVendorLotWizard(osv.osv):
     def create_new_licenseplate(self, cr, uid, wizard):
 	lot_obj = self.pool.get('stock.vendor.lot')
 	if wizard:
+	    if wizard.purchases:
+		purchase_ids = [purch.id for purch in wizard.purchases]
+	    else:
+		purchases = []
 	    vals = {
 		    'vendor': wizard.vendor.id,
 		    'receipt': wizard.receipt.id,
-		    'purchase': wizard.purchase.id if wizard.purchase else False,
+		    'purchases': [(6, 0, purchase_ids)],
 	    }
 
 	else:
@@ -77,7 +84,7 @@ class StockVendorLotWizard(osv.osv):
 			'default_receipt': wizard.receipt.id,
 			'default_license_plate': lot.license_plate,
 			'default_vendor': wizard.vendor.id,
-			'default_purchase': wizard.purchase.id,
+			'default_purchases': [purch.id for purch in wizard.purchases],
 			'repeatable': True,
 	})
         return {

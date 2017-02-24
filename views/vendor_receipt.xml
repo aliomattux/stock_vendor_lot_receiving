@@ -7,11 +7,11 @@
             <field name="arch" type="xml">
                 <tree string="Receipts">
 		    <field name="name" />
-		    <field name="purchase" />
 		    <field name="vendor" />
 		    <field name="number_lots" />
 		    <field name="start_time" />
 		    <field name="end_time" />
+		    <field name="state" />
                 </tree>
             </field>
         </record>
@@ -22,8 +22,12 @@
             <field name="arch" type="xml">
                 <form string="License Plates">
                    <header>
+			<button name="export_receipt" string="Export Receipt" type="object" />
+			<button name="action_view_license_plates" type="object" string="License Plates" />
                         <button name="print_license_plates" type="object" string="Print License Plates" />
-                        <button name="reconcile_purchase_order" type="object" string="Reconcile PO" />
+                        <button name="reconcile_receipt" string="Reconcile" type="object"
+                                attrs="{'invisible': [('state', 'not in', ('not_reconcile', 'discrepant'))]}"/>
+			<field name="state" widget="statusbar" />
                     </header>
 		    <sheet>
                         <h1>
@@ -33,8 +37,8 @@
 		    <group>
 		        <group string="Details">
 			    <field name="start_time" />
-                            <field name="purchase" />
                             <field name="vendor" />
+			    <field name="purchases" widget="many2many_tags" />
 		        </group>
 			<group string="Stats">
 			    <field name="number_lots" />
@@ -45,16 +49,32 @@
 			    <field name="count_incoming_putaway_lots" />
 			</group>
 		    </group>
-		    <group string="License Plates">
-			<field name="license_plates" widget="one2many_list" nolabel="1" colspan="4" />
-		    </group>
+		    <notebook>
+			<page string="Items">
+			    <field name="items" widget="one2many_list" nolabel="1" >
+				<tree string="" editable="bottom">
+				    <field name="name" invisible="1" />
+				    <field name="product" on_change="onchange_product(product, parent.vendor)" context="{'search_receipt_lines': 1, 'partner_id': parent.vendor, 'product': product, 'purchases': parent.purchases}"/>
+				    <field name="receipt_qty" />
+				    <field name="qty_pending_dock" />
+				    <field name="qty_pending_exception" />
+				    <field name="qty_po_pending" />
+				</tree>
+			    </field>
+			</page>
+			<page string="License Plates">
+		            <group string="License Plates">
+			        <field name="license_plates" widget="one2many_list" nolabel="1" colspan="4" />
+		            </group>
+			</page>
+		    </notebook>
 		    </sheet>
                 </form>
             </field>
         </record>
 
         <record id="action_vendor_receipt_form" model="ir.actions.act_window">
-            <field name="name">Vendor Receipts</field>
+            <field name="name">Incoming Shipments</field>
             <field name="type">ir.actions.act_window</field>
             <field name="res_model">stock.vendor.receipt</field>
             <field name="view_type">form</field>

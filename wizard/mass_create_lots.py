@@ -1,14 +1,17 @@
 from openerp.osv import osv, fields
 from openerp.tools.translate import _
 
-class StockVendorLotAssignVendorWizard(osv.osv):
+class StockVendorLotAssignVendorWizard(osv.osv_memory):
     _name = 'stock.vendor.lot.create.mass.wizard'
     _columns = {
 	'name': fields.char('Name'),
 	'vendor':fields.many2one('res.partner', 'Vendor'),
 	'current_lots': fields.integer('Current License Plates'),	
 	'number_lots': fields.integer('Number of Lots'),
-	'purchase': fields.many2one('purchase.order', 'Purchase Order'),
+        'purchases': fields.many2many('purchase.order', \
+                'mass_create_wizard_purchase_rel', 'lot_id', 'purchase_id',
+		string='Purchase Orders', domain="[('partner_id', '=', vendor)]"
+        ),
     }
 
     def default_get(self, cr, uid, fields, context=None):
@@ -21,7 +24,6 @@ class StockVendorLotAssignVendorWizard(osv.osv):
 	receipt = receipt_obj.browse(cr, uid, receipts[0])
 
 	res = {
-	    'purchase': receipt.purchase.id,
 	    'current_lots': receipt.number_lots,
 	    'vendor': receipt.vendor.id,
 	}
@@ -32,9 +34,13 @@ class StockVendorLotAssignVendorWizard(osv.osv):
     def create_new_licenseplate(self, cr, uid, wizard, receipt):
         lot_obj = self.pool.get('stock.vendor.lot')
         if wizard:
+	    if wizard.purchases:
+		purchase_ids = [purch.id for purch in wizard.purchases]
+	    else:
+		purchase_ids = []
             vals = {
                     'vendor': wizard.vendor.id if wizard.vendor else False,
-		    'purchase': wizard.purchase.id if wizard.purchase else False,
+		    'purchases': [(6, 0, purchase_ids)],
 		    'receipt': receipt.id,
             }
 

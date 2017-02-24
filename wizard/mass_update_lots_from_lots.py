@@ -1,7 +1,7 @@
 from openerp.osv import osv, fields
 from openerp.tools.translate import _
 
-class StockUpdateLotsFromLotsWizard(osv.osv):
+class StockUpdateLotsFromLotsWizard(osv.osv_memory):
     _name = 'stock.update.lots.from.lots.wizard'
     _columns = {
 	'name': fields.char('Name'),
@@ -13,7 +13,10 @@ class StockUpdateLotsFromLotsWizard(osv.osv):
                         ('putaway', 'Pending Putaway'),
                         ('done', 'Done')
         ], 'State'),
-	'purchase': fields.many2one('purchase.order', 'Purchase Order'),
+        'purchases': fields.many2many('purchase.order', \
+                'mass_update_from_lots_wizard_purchase_rel', 'lot_id', 'purchase_id',
+		string='Purchase Orders', domain="[('partner_id', '=', vendor)]"
+        ),
 	'lots': fields.one2many('stock.update.lots.from.lots.wizard.lines', 'parent', string='Vendor Lots'),
     }
 
@@ -41,8 +44,9 @@ class StockUpdateLotsFromLotsWizard(osv.osv):
 	if wizard.vendor:
 	    vals.update({'vendor': wizard.vendor.id})
 
-	if wizard.purchase:
-	    vals.update({'purchase': wizard.purchase.id})
+	if wizard.purchases:
+	    purchase_ids = [purch.id for purch in wizard.purchases]
+	    vals.update({'purchases': [(6, 0, purchase_ids)]})
 
 	if wizard.state:
 	    vals.update({'state': wizard.state})
@@ -52,7 +56,7 @@ class StockUpdateLotsFromLotsWizard(osv.osv):
 	return True
 
 	    
-class StockUpdateLotsFromLotsLinesWizard(osv.osv):
+class StockUpdateLotsFromLotsLinesWizard(osv.osv_memory):
     _name = 'stock.update.lots.from.lots.wizard.lines'
     _columns = {
 	'parent': fields.many2one('stock.update.lots.from.lots.wizard', 'Parent'),

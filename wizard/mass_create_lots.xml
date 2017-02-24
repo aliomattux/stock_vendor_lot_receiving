@@ -8,14 +8,13 @@
                 <form string="Serial Number">
                     <group string="Mass Create">
 			<group>
-			    <field name="current_lots" readonly="1" />
-			    <field name="number_lots" />
+			    <field name="purchases" widget="many2many_tags"/>
 			    <field name="vendor" />
-			    <field name="purchase" />
-			</group>
-                        <group>
+			    <field name="number_lots" />
+			    <field name="current_lots" readonly="1" />
+			    <newline/>
                             <button name="mass_create_vendor_lots" string="Create Lots" type="object" />
-                        </group>
+			</group>
                     </group>
                 </form>
             </field>
